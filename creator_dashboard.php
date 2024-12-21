@@ -18,8 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
     $title = $_POST['title'];
     $body = $_POST['body'];
     $creator_id = $_SESSION['user_id'];
-
-    // Handle image upload
     $image_path = null;
     // if (!empty($_FILES['image']['name'])) {
     //     // $target_dir = "uploads/";

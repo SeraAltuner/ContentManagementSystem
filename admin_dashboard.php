@@ -1,13 +1,9 @@
 <?php
 session_start();
 
-// Check if the user is logged in
-if (!isset($_SESSION['role'])) {
-    header("Location: login.php");
-    exit;
-}
+// Include the configuration file
+require_once 'config.php';
 
-// Ensure the logged-in user is an Admin
 if ($_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit;
@@ -18,8 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
     $role = $_POST['role'];
 
+    // Use $pdo to prepare and execute the query
     $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (:username, :password, :role)");
-    $stmt->execute(['username' => $username, 'password' => $password, 'role' => $role]);
+    $stmt->execute([
+        'username' => $username,
+        'password' => $password,
+        'role' => $role
+    ]);
     $message = "User created successfully.";
 }
 ?>
