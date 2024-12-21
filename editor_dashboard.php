@@ -40,20 +40,21 @@ $contents = $stmt->fetchAll();
     <h2>All Contents</h2>
     <?php if (count($contents) > 0): ?>
         <ul>
-            <?php foreach ($contents as $content): ?>
-                <li>
-                    <strong><?= htmlspecialchars($content['title']) ?></strong> by <?= htmlspecialchars($content['creator_name']) ?>
-                    <p><?= htmlspecialchars($content['body']) ?></p>
-                    <?php if ($content['image_path']): ?>
-                        <img src="<?= htmlspecialchars($content['image_path']) ?>" alt="Content Image" width="100">
-                    <?php endif; ?>
-                    <br>
-                    <?php if (!$content['is_approved']): ?>
-                        <a href="editor_dashboard.php?approve=<?= $content['id'] ?>">Approve</a>
-                    <?php endif; ?>
-                    <a href="editor_dashboard.php?delete=<?= $content['id'] ?>">Delete</a>
-                </li>
-            <?php endforeach; ?>
+        <?php foreach ($contents as $content): ?>
+    <li>
+        <strong><?= htmlspecialchars($content['title']) ?></strong> by <?= htmlspecialchars($content['creator_name']) ?>
+        <p><?= htmlspecialchars($content['body']) ?></p>
+        <?php if ($content['image_path']): ?>
+            <img src="<?= htmlspecialchars('uploads/' . basename($content['image_path'])) ?>" alt="Content Image" width="100">
+        <?php endif; ?>
+        <br>
+        <?php if (!$content['is_approved']): ?>
+            <a href="editor_dashboard.php?approve=<?= $content['id'] ?>">Approve</a>
+        <?php endif; ?>
+        <a href="editor_dashboard.php?delete=<?= $content['id'] ?>">Delete</a>
+    </li>
+<?php endforeach; ?>
+
         </ul>
     <?php else: ?>
         <p>No content available.</p>
