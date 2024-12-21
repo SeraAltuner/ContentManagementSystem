@@ -18,18 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
     $title = $_POST['title'];
     $body = $_POST['body'];
     $creator_id = $_SESSION['user_id'];
-
-    // Handle image upload
     $image_path = null;
-    // if (!empty($_FILES['image']['name'])) {
-    //     // $target_dir = "uploads/";
-    //     // $image_path = $target_dir . basename($_FILES['image']['name']);
-    //     $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/cms/uploads/";
-    //     $image_path = $target_dir . basename($_FILES['image']['name']);
-
-    //     move_uploaded_file($_FILES['image']['tmp_name'], $image_path);
-    // }
-
+   
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/cms/uploads/";
         $image_path = $target_dir . basename($_FILES['image']['name']);
@@ -63,6 +53,27 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 $stmt = $pdo->prepare("SELECT * FROM contents WHERE creator_id = :creator_id");
 $stmt->execute(['creator_id' => $_SESSION['user_id']]);
 $contents = $stmt->fetchAll();
+
+$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+$filter_status = isset($_GET['filter_status']) ? $_GET['filter_status'] : '';
+
+$sql = "SELECT * FROM contents WHERE creator_id = :creator_id";
+$params = ['creator_id' => $_SESSION['user_id']];
+
+if ($search_query) {
+    $sql .= " AND (title LIKE :search_query OR body LIKE :search_query)";
+    $params['search_query'] = '%' . $search_query . '%';
+}
+
+if ($filter_status === 'approved') {
+    $sql .= " AND is_approved = 1";
+} elseif ($filter_status === 'unapproved') {
+    $sql .= " AND is_approved = 0";
+}
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$contents = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -86,24 +97,52 @@ $contents = $stmt->fetchAll();
         <button type="submit" name="add_content">Add Content</button>
     </form>
 
+    <?php
+// Handle search
+$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+
+$sql = "SELECT contents.*, users.username AS creator_name 
+        FROM contents 
+        JOIN users ON contents.creator_id = users.id";
+
+if ($search_query) {
+    $sql .= " WHERE (contents.title LIKE :search_query OR contents.body LIKE :search_query 
+              OR users.username LIKE :search_query)";
+    $params = ['search_query' => '%' . $search_query . '%'];
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+} else {
+    $stmt = $pdo->query($sql);
+}
+$contents = $stmt->fetchAll();
+?>
+
+<!-- Add Search Form -->
+<form method="GET">
+    <label>Search:</label>
+    <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>">
+    <button type="submit">Search</button>
+</form>
+
     <!-- List of Created Content -->
     <h2>Your Contents</h2>
     <?php if (count($contents) > 0): ?>
         <ul>
-            <?php foreach ($contents as $content): ?>
-                <li>
-                    <strong><?= htmlspecialchars($content['title']) ?></strong>
-                    <p><?= htmlspecialchars($content['body']) ?></p>
-                    <?php if ($content['image_path']): ?>
-                        <img src="<?= htmlspecialchars($content['image_path']) ?>" alt="Content Image" width="100">
-                    <?php endif; ?>
-                    <br>
-                    <a href="creator_dashboard.php?delete=<?= $content['id'] ?>">Delete</a>
-                </li>
-            <?php endforeach; ?>
+        <?php foreach ($contents as $content): ?>
+            <li>
+                <strong><?= htmlspecialchars($content['title']) ?></strong> by <?= htmlspecialchars($content['creator_name']) ?>
+                <p><?= htmlspecialchars($content['body']) ?></p>
+                <?php if ($content['image_path']): ?>
+                    <img src="<?= htmlspecialchars('uploads/' . basename($content['image_path'])) ?>" alt="Content Image" width="100">
+                <?php endif; ?>
+            </li>
+        <?php endforeach; ?>
+
         </ul>
     <?php else: ?>
         <p>You have not created any content yet.</p>
     <?php endif; ?>
+
+    
 </body>
 </html>
