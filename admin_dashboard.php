@@ -8,21 +8,6 @@ if ($_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit;
 }
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-    $role = $_POST['role'];
-
-    // Use $pdo to prepare and execute the query
-    $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (:username, :password, :role)");
-    $stmt->execute([
-        'username' => $username,
-        'password' => $password,
-        'role' => $role
-    ]);
-    $message = "User created successfully.";
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,19 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: left;
             color: #555;
         }
-        input[type="text"], input[type="password"], select {
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 100%;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease-in-out;
-        }
-        input:focus, select:focus {
-            border-color: #4e54c8;
-            outline: none;
-        }
         button {
             background: linear-gradient(to right, #4e54c8, #8f94fb);
             color: #fff;
@@ -93,34 +65,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: translateY(-3px);
             box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
         }
-        .message {
-            background: #e0f7fa;
-            color: #00796b;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <h1>Admin Dashboard</h1>
-        <?php if (isset($message)) echo "<p class='message'>$message</p>"; ?>
-        <form method="POST">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="Enter username" required>
-            
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter password" required>
-            
-            <label for="role">Role:</label>
-            <select id="role" name="role" required>
-                <option value="content_creator">Content Creator</option>
-                <option value="editor">Editor</option>
-            </select>
-            
-            <button type="submit">Create User</button>
+        
+        <!-- Redirect to Create Account Page -->
+        <form method="get" action="create_account.php">
+            <button type="submit">Create Account</button>
+        </form>
+
+        <!-- Redirect to Edit Creator Page -->
+        <form method="get" action="edit_creator.php">
+            <button type="submit">Edit Creator</button>
         </form>
     </div>
 </body>

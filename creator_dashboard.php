@@ -19,130 +19,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
     $body = $_POST['body'];
     $creator_id = $_SESSION['user_id'];
     $image_path = null;
-   
+
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/cms/uploads/";
         $image_path = $target_dir . basename($_FILES['image']['name']);
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
-            echo "The file has been uploaded successfully.";
+            // File uploaded successfully
         } else {
-            echo "Error: Failed to move the uploaded file.";
+            // File upload failed, handle error
         }
     } else {
-        echo "Error: " . $_FILES['image']['error']; // Display specific upload error
+        // No image or error during upload
     }
-    
 
+    // Insert content into database
     $stmt = $pdo->prepare("INSERT INTO contents (title, body, image_path, creator_id) VALUES (:title, :body, :image_path, :creator_id)");
     $stmt->execute(['title' => $title, 'body' => $body, 'image_path' => $image_path, 'creator_id' => $creator_id]);
-    $message = "Content added successfully.";
+
+    // Redirect to public_view.php after successful content creation
+    header("Location: public_view.php");
+    exit; // Ensure no further code is executed
 }
-
-// Handle content deletion
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $content_id = $_GET['delete'];
-    $creator_id = $_SESSION['user_id'];
-
-    $stmt = $pdo->prepare("DELETE FROM contents WHERE id = :id AND creator_id = :creator_id");
-    $stmt->execute(['id' => $content_id, 'creator_id' => $creator_id]);
-    $message = "Content deleted successfully.";
-}
-
-// Fetch all content created by the logged-in user
-$stmt = $pdo->prepare("SELECT * FROM contents WHERE creator_id = :creator_id");
-$stmt->execute(['creator_id' => $_SESSION['user_id']]);
-$contents = $stmt->fetchAll();
-
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
-$filter_status = isset($_GET['filter_status']) ? $_GET['filter_status'] : '';
-
-$sql = "SELECT * FROM contents WHERE creator_id = :creator_id";
-$params = ['creator_id' => $_SESSION['user_id']];
-
-if ($search_query) {
-    $sql .= " AND (title LIKE :search_query OR body LIKE :search_query)";
-    $params['search_query'] = '%' . $search_query . '%';
-}
-
-if ($filter_status === 'approved') {
-    $sql .= " AND is_approved = 1";
-} elseif ($filter_status === 'unapproved') {
-    $sql .= " AND is_approved = 0";
-}
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$contents = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Creator Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 40px;
+            width: 400px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #4e54c8;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            text-align: left;
+        }
+
+        input[type="text"], textarea, input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 150px;
+        }
+
+        button {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+    </style>
 </head>
 <body>
-    <h1>Welcome, Content Creator</h1>
-    <?php if (isset($message)) echo "<p style='color: green;'>$message</p>"; ?>
 
-    <!-- Add Content Form -->
-    <h2>Add Content</h2>
-    <form method="POST" enctype="multipart/form-data">
-        <label>Title:</label>
-        <input type="text" name="title" required><br>
-        <label>Body:</label>
-        <textarea name="body" required></textarea><br>
-        <label>Image:</label>
-        <input type="file" name="image"><br>
-        <button type="submit" name="add_content">Add Content</button>
-    </form>
+    <div class="dashboard-container">
+        <h1>Welcome, Content Creator</h1>
 
-    <?php
-// Handle search
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+        <!-- Add Content Form -->
+        <h2>Add Content</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <label>Title:</label>
+            <input type="text" name="title" required><br>
 
-$sql = "SELECT contents.*, users.username AS creator_name 
-        FROM contents 
-        JOIN users ON contents.creator_id = users.id";
+            <label>Body:</label>
+            <textarea name="body" required></textarea><br>
 
-if ($search_query) {
-    $sql .= " WHERE (contents.title LIKE :search_query OR contents.body LIKE :search_query 
-              OR users.username LIKE :search_query)";
-    $params = ['search_query' => '%' . $search_query . '%'];
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-} else {
-    $stmt = $pdo->query($sql);
-}
-$contents = $stmt->fetchAll();
-?>
+            <label>Image:</label>
+            <input type="file" name="image"><br>
 
-<!-- Add Search Form -->
-<form method="GET">
-    <label>Search:</label>
-    <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>">
-    <button type="submit">Search</button>
-</form>
+            <button type="submit" name="add_content">Add Content</button>
+        </form>
+    </div>
 
-    <!-- List of Created Content -->
-    <h2>Your Contents</h2>
-    <?php if (count($contents) > 0): ?>
-        <ul>
-        <?php foreach ($contents as $content): ?>
-            <li>
-                <strong><?= htmlspecialchars($content['title']) ?></strong> by <?= htmlspecialchars($content['creator_name']) ?>
-                <p><?= htmlspecialchars($content['body']) ?></p>
-                <?php if ($content['image_path']): ?>
-                    <img src="<?= htmlspecialchars('uploads/' . basename($content['image_path'])) ?>" alt="Content Image" width="100">
-                <?php endif; ?>
-            </li>
-        <?php endforeach; ?>
-
-        </ul>
-    <?php else: ?>
-        <p>You have not created any content yet.</p>
-    <?php endif; ?>
-
-    
 </body>
 </html>
