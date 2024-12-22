@@ -1,27 +1,4 @@
 <?php
-
-    require 'config.php';
-
-    // Handle search
-    $search_query = isset($_GET['search']) ? $_GET['search'] : '';
-
-    // Base SQL query to fetch all content
-    $sql = "SELECT contents.*, users.username AS creator_name 
-            FROM contents 
-            JOIN users ON contents.creator_id = users.id";
-
-    // Append search condition if search query exists
-    if ($search_query) {
-        $sql .= " WHERE contents.title LIKE :search_query OR contents.body LIKE :search_query";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(['search_query' => '%' . $search_query . '%']);
-    } else {
-        $stmt = $pdo->query($sql);
-    }
-
-    // Fetch all data
-    $contents = $stmt->fetchAll();
-=======
 require 'config.php';
 
 // Handle search
@@ -43,42 +20,9 @@ if ($search_query) {
 
 // Fetch all data
 $contents = $stmt->fetchAll();
-
 ?>
 
-
 <!DOCTYPE html>
-
-<html>
-<head>
-    <title>Public View</title>
-</head>
-<body>
-    <h1>Public Content</h1>
-
-    <!-- Search Form -->
-    <form method="GET">
-        <label>Search:</label>
-        <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>">
-        <button type="submit">Search</button>
-    </form>
-
-    <!-- Display Approved Contents -->
-    <ul>
-        <?php foreach ($contents as $content): ?>
-            <li>
-                <strong><?= htmlspecialchars($content['title']) ?></strong> by <?= htmlspecialchars($content['creator_name']) ?>
-                <p><?= htmlspecialchars($content['body']) ?></p>
-                <?php if ($content['image_path']): ?>
-                    <img src="<?= htmlspecialchars('uploads/' . basename($content['image_path'])) ?>" alt="Content Image" width="100">
-                <?php endif; ?>
-            </li>
-    <?php endforeach; ?>
-
-    </ul>
-</body>
-</html>
-=======
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -94,14 +38,47 @@ $contents = $stmt->fetchAll();
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
+            flex-direction: column;
+        }
+        .header, .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: #fff;
+            padding: 10px 30px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: -8%;
+            border-radius: 15px;
+        }
+        .header h1 {
+            color: #4e54c8;
+            margin: 0;
+        }
+        .header a {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .header a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
         }
         .container {
             background: #fff;
             border-radius: 15px;
             padding: 20px 30px;
             margin-top: 30px;
-            width: 90%;
-            max-width: 1200px;
             box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
         }
         h1 {
@@ -160,13 +137,13 @@ $contents = $stmt->fetchAll();
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
         }
         .content-card img {
-        max-width: 100%; /* Görselin kapsayıcı alandan taşmasını önler */
-        height: auto;    /* Oranı korur */
-        max-height: 100px; /* Görselin maksimum yüksekliği */
-        border-radius: 8px;
-        margin-bottom: 10px;
-        object-fit: cover; /* Görselin taşan kısımlarını kırpar */
-    }
+            max-width: 100%;
+            height: auto;
+            max-height: 100px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
         .content-card h2 {
             font-size: 18px;
             color: #4e54c8;
@@ -184,9 +161,13 @@ $contents = $stmt->fetchAll();
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Header with Log In button -->
+    <div class="header">
         <h1>Public Content</h1>
+        <a href="login.php">Log In</a>
+    </div>
 
+    <div class="container">
         <!-- Search Form -->
         <form method="GET">
             <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>" placeholder="Search content...">
@@ -198,21 +179,26 @@ $contents = $stmt->fetchAll();
             <?php if (!empty($contents)): ?>
                 <?php foreach ($contents as $content): ?>
                     <div class="content-card">
-                    <?php if (!empty($content['image_path']) && file_exists('uploads/' . $content['image_path'])): ?>
-        <img src="uploads/<?= htmlspecialchars($content['image_path']) ?>" alt="Content Image">
-            <?php else: ?>
-                <img src="uploads/default_image.jpg" alt="Default Image">
-            <?php endif; ?>
-            <h2><?= htmlspecialchars($content['title']) ?></h2>
-            <p><?= htmlspecialchars($content['body']) ?></p>
-            <p class="creator">By <?= htmlspecialchars($content['creator_name']) ?></p>
-                </div>
+                        <?php if (!empty($content['image_path']) && file_exists('uploads/' . $content['image_path'])): ?>
+                            <img src="uploads/<?= htmlspecialchars($content['image_path']) ?>" alt="Content Image">
+                        <?php else: ?>
+                            <img src="uploads/default_image.jpg" alt="Default Image">
+                        <?php endif; ?>
+                        <h2><?= htmlspecialchars($content['title']) ?></h2>
+                        <p><?= htmlspecialchars($content['body']) ?></p>
+                        <p class="creator">By <?= htmlspecialchars($content['creator_name']) ?></p>
+                    </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p style="text-align: center; color: #555;">No content available.</p>
+                <div class="content-card">
+                    <h2>No content available</h2>
+                    <p>Try adjusting your search or come back later.</p>
+                </div>
             <?php endif; ?>
         </div>
     </div>
 </body>
 </html>
+
+
 
