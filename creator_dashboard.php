@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'config.php'; // Make sure this file has your PDO connection setup
+require 'config.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['role'])) {

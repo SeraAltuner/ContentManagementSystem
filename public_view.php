@@ -4,34 +4,37 @@ session_start();
 
 // If the user is logged out, set the flag
 if (isset($_SESSION['logged_out']) && $_SESSION['logged_out'] === true) {
-    unset($_SESSION['logged_out']);  // Reset the flag after checking
-    $_SESSION['role'] = null;  // Ensure the user is logged out completely
+    unset($_SESSION['logged_out']); // Reset the flag after checking
+    $_SESSION['role'] = null; // Ensure the user is logged out completely
 }
 
 // Handle search
 $search_query = isset($_GET['search']) ? $_GET['search'] : '';
 $approval_filter = isset($_GET['approval_filter']) ? $_GET['approval_filter'] : 'all';
 
-// Get the logged-in user's ID and view_all_contents attribute
+// Get the logged-in user's ID, role, and view_all_contents attribute
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+$user_role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 $view_all_contents = 1;
-if ($user_id) {
+
+if ($user_id && $user_role !== 'editor') {
     $stmt = $pdo->prepare("SELECT view_all_contents FROM users WHERE id = :id");
     $stmt->execute(['id' => $user_id]);
     $view_all_contents = $stmt->fetchColumn();
 }
 
-// Base SQL query to fetch content based on view_all_contents
-if ($user_id && !$view_all_contents) {
-    $sql = "SELECT contents.*, users.username AS creator_name 
-            FROM contents 
-            JOIN users ON contents.creator_id = users.id
-            WHERE contents.creator_id = :user_id";
+// Base SQL query logic
+if ($user_role === 'editor') {
+    // Editors can view all content without restrictions
+    $sql = "SELECT contents.*, users.username AS creator_name FROM contents JOIN users ON contents.creator_id = users.id";
+    $params = [];
+} elseif ($user_id && !$view_all_contents) {
+    // Regular users can only view their own content
+    $sql = "SELECT contents.*, users.username AS creator_name FROM contents JOIN users ON contents.creator_id = users.id WHERE contents.creator_id = :user_id";
     $params = ['user_id' => $user_id];
 } else {
-    $sql = "SELECT contents.*, users.username AS creator_name 
-            FROM contents 
-            JOIN users ON contents.creator_id = users.id";
+    // Other users can view all content
+    $sql = "SELECT contents.*, users.username AS creator_name FROM contents JOIN users ON contents.creator_id = users.id";
     $params = [];
 }
 
@@ -41,13 +44,15 @@ if ($search_query) {
     $params['search_query'] = '%' . $search_query . '%';
 }
 
-// Append approval filter condition
-if ($approval_filter === 'approved') {
-    $sql .= $search_query ? " AND" : " WHERE";
-    $sql .= " contents.is_approved = 1";
-} elseif ($approval_filter === 'not_approved') {
-    $sql .= $search_query ? " AND" : " WHERE";
-    $sql .= " contents.is_approved = 0";
+// Append approval filter condition if the user is not an editor
+if ($user_role !== 'editor') {
+    if ($approval_filter === 'approved') {
+        $sql .= $search_query ? " AND" : " WHERE";
+        $sql .= " contents.is_approved = 1";
+    } elseif ($approval_filter === 'not_approved') {
+        $sql .= $search_query ? " AND" : " WHERE";
+        $sql .= " contents.is_approved = 0";
+    }
 }
 
 $stmt = $pdo->prepare($sql);
@@ -75,45 +80,6 @@ if (isset($_GET['delete_content_id']) && $user_id) {
         exit;
     }
 }
-
-// Handle search
-$search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
-$approval_filter = isset($_GET['approval_filter']) ? $_GET['approval_filter'] : 'all';
-
-// Base SQL query to fetch content based on view_all_contents
-if ($user_id && !$view_all_contents) {
-    $sql = "SELECT contents.*, users.username AS creator_name 
-            FROM contents 
-            JOIN users ON contents.creator_id = users.id
-            WHERE contents.creator_id = :user_id";
-    $params = ['user_id' => $user_id];
-} else {
-    $sql = "SELECT contents.*, users.username AS creator_name 
-            FROM contents 
-            JOIN users ON contents.creator_id = users.id";
-    $params = [];
-}
-
-// Append search condition if search query exists
-if ($search_query) {
-    $sql .= $user_id && !$view_all_contents ? " AND" : " WHERE";
-    $sql .= " (contents.title LIKE :search_query OR contents.body LIKE :search_query)";
-    $params['search_query'] = '%' . $search_query . '%';
-}
-
-// Append approval filter condition
-if ($approval_filter === 'approved') {
-    $sql .= " AND contents.is_approved = 1";
-} elseif ($approval_filter === 'not_approved') {
-    $sql .= " AND contents.is_approved = 0";
-}
-
-// Execute the query
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-
-// Fetch all data
-$contents = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -305,12 +271,20 @@ $contents = $stmt->fetchAll();
 <body>
     <div class="header">
         <h1>Public Content</h1>
-        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'content_creator'): ?>
-            <a href="creator_dashboard.php">Create Content</a>
-            <a href="logout.php">Logout</a>
-        <?php else: ?>
-            <a href="login.php">Log In</a>
-        <?php endif; ?>
+        <?php if (isset($_SESSION['role'])): ?>
+    <?php if ($_SESSION['role'] === 'content_creator'): ?>
+        <a href="creator_dashboard.php">Create Content</a>
+        <a href="logout.php">Logout</a>
+    <?php elseif ($_SESSION['role'] === 'editor'): ?>
+        <a href="editor_dashboard.php">Edit Content</a>
+        <a href="logout.php">Logout</a>
+    <?php else: ?>
+        <a href="login.php">Log In</a>
+    <?php endif; ?>
+<?php else: ?>
+    <a href="login.php">Log In</a>
+<?php endif; ?>
+
     </div>
 
     <div class="container">

@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user['role'] === 'admin') {
             header('Location: admin_dashboard.php');
         } elseif ($user['role'] === 'editor') {
-            header('Location: editor_dashboard.php');
+            header('Location: public_view.php');
         } elseif ($user['role'] === 'content_creator') {
             header('Location: public_view.php');
         } else {
@@ -191,9 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="#" class="forgot-password">Forgot password?</a>
             <button type="submit">Login</button>
         </form>
-        <!-- <div class="sign-up">
-            Or <a href="#">Sign Up</a>
-        </div> -->
+     
     </div>
 
     <script>
