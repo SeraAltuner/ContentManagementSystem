@@ -24,7 +24,7 @@
 
     // Append search condition if search query exists
     if ($search_query) {
-        $sql .= " WHERE (contents.title LIKE :search_query OR contents.body LIKE :search_query)";
+        $sql .= " WHERE (contents.title LIKE :search_query OR users.username LIKE :search_query)";
         $params['search_query'] = '%' . $search_query . '%';
     }
 
@@ -48,12 +48,13 @@
     }
 
     // Handle AJAX content approval update
-    if (isset($_POST['approve_content_id']) && $user_id && $user_role === 'editor') {
+    if (isset($_POST['approve_content_id'], $_POST['is_approved']) && $user_id && $user_role === 'editor') {
         $content_id = $_POST['approve_content_id'];
+        $is_approved = $_POST['is_approved']; // Get the new approval state (1 or 0)
 
         // Update the is_approved attribute
-        $stmt = $pdo->prepare("UPDATE contents SET is_approved = 1 WHERE id = :content_id");
-        $stmt->execute(['content_id' => $content_id]);
+        $stmt = $pdo->prepare("UPDATE contents SET is_approved = :is_approved WHERE id = :content_id");
+        $stmt->execute(['is_approved' => $is_approved, 'content_id' => $content_id]);
 
         // Return response indicating success
         echo json_encode(['success' => true]);
@@ -206,6 +207,7 @@
         .content-card .creator {
             font-size: 12px;
             color: #888;
+            margin-top: 10px;
         }
         .more-options {
             position: absolute;
@@ -251,17 +253,32 @@
     </style>
 </head>
 <body>
-    <div class="container">
-    <form method="GET">
-    <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>" placeholder="Search content...">
-    <button type="submit">Search</button>
-</form>
+    <div class="header">
+        <h1>Editor Dashboard</h1>
+        <?php if (isset($_SESSION['role'])): ?>
+            <?php if ($_SESSION['role'] === 'content_creator'): ?>
+                <a href="creator_dashboard.php">Create Content</a>
+                <a href="logout.php">Logout</a>
+            <?php elseif ($_SESSION['role'] === 'editor'): ?>
+                <a href="logout.php">Logout</a>
+            <?php else: ?>
+                <a href="login.php">Log In</a>
+            <?php endif; ?>
+        <?php else: ?>
+            <a href="login.php">Log In</a>
+        <?php endif; ?>
+    </div>
 
+    <div class="container">
+        <form method="GET">
+            <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>" placeholder="Search content or creator...">
+            <button type="submit">Search</button>
+        </form>
         <div class="content-grid">
             <?php if (!empty($contents)): ?>
                 <?php foreach ($contents as $content): ?>
                     <div class="content-card" id="content-<?= $content['id'] ?>">
-                    <div class="more-options" onclick="toggleOptions(<?= $content['id'] ?>)">...</div>
+                        <div class="more-options" onclick="toggleOptions(<?= $content['id'] ?>)">...</div>
                         <div class="options-dropdown">
                             <a href="edit_content.php?id=<?= $content['id'] ?>">Edit</a>
                             <a href="editor_dashboard.php?delete_content_id=<?= $content['id'] ?>" onclick="deleteContent(<?= $content['id'] ?>)">Delete</a>
@@ -273,20 +290,7 @@
                         <?php endif; ?>
                         <h2><?= htmlspecialchars($content['title']) ?></h2>
                         <p><?= htmlspecialchars($content['body']) ?></p>
-                        <p class="creator">By <?= htmlspecialchars($content['creator_name']) ?></p>
-
-
-                        <div class="checkbox-container">
-                            <label>
-                                <input type="checkbox" onchange="approveContent(<?= $content['id'] ?>)" <?= $content['is_approved'] == 1 ? 'checked' : '' ?>>
-                                Approve
-                            </label>
-                        </div>
-                        <?php if ($content['creator_id'] == $user_id): ?>
-                            <span class="delete-content" onclick="deleteContent(<?= $content['id'] ?>)">
-                                <i class="fas fa-trash"></i>
-                            </span>
-                        <?php endif; ?>
+                        <div class="creator">Created by: <?= htmlspecialchars($content['creator_name']) ?></div>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -299,15 +303,6 @@
     </div>
 
     <script>
-          function applyFilter() {
-        const searchInput = document.querySelector('input[name="search"]').value;
-        const approvalFilter = document.querySelector('#approval-filter').value;
-        const url = new URL(window.location.href);
-        url.searchParams.set('search', searchInput);
-        url.searchParams.set('approval_filter', approvalFilter);
-        window.location.href = url.toString();
-    }
-
         function deleteContent(contentId) {
             window.location.href = 'editor_dashboard.php?delete_content_id=' + contentId;
         }
@@ -321,9 +316,10 @@
             const checkbox = document.querySelector(`#content-${contentId} .checkbox-container input`);
             const isChecked = checkbox.checked;
 
-            // Use AJAX to update the is_approved attribute without page reload
+            // Use AJAX to update the is_approved attribute
             const formData = new FormData();
             formData.append('approve_content_id', contentId);
+            formData.append('is_approved', isChecked ? 1 : 0); // Send the current state (1 for approved, 0 for not approved)
 
             fetch('editor_dashboard.php', {
                 method: 'POST',
@@ -332,7 +328,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log('Content approved');
+                    console.log('Content approval status updated');
                 }
             })
             .catch(error => {
@@ -341,4 +337,4 @@
         }
     </script>
 </body>
-</html> 
+</html>

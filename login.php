@@ -14,10 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
 
+        // Redirect based on role
         if ($user['role'] === 'admin') {
             header('Location: admin_dashboard.php');
         } elseif ($user['role'] === 'editor') {
-            header('Location: public_view.php');
+            header('Location: editor_dashboard.php');  // Directly redirect editor to editor dashboard
         } elseif ($user['role'] === 'content_creator') {
             header('Location: public_view.php');
         } else {
