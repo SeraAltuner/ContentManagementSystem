@@ -284,7 +284,7 @@
                 <a href="login.php">Log In</a>
             <?php endif; ?>
         
-            <a href="login.php">Log In</a>
+            <a href="logout.php">Log Out</a>
        
     </div>
 
