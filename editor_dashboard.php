@@ -86,28 +86,32 @@
             max-width: 1200px;
             margin: 0 auto;
         }
+
         .header {
-    background: #fff;
-    padding: 10px 30px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    border-bottom: 2px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0;
-    border-radius: 15px;
-    position: fixed;
-    top: 2%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    z-index: 1000;
-}
+
+            background: #fff;
+            padding: 10px 30px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0;
+            border-radius: 15px;
+            position: fixed;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            z-index: 1000;
+        }
+
 
         .header h1 {
             color: #4e54c8;
             margin: 0;
         }
+
         .header a {
             padding: 10px 20px;
             border-radius: 8px;
@@ -118,6 +122,7 @@
             font-weight: bold;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .header a:hover {
             transform: translateY(-3px);
             box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
@@ -248,27 +253,36 @@
         .content-card.show-options .options-dropdown {
             display: block;
         }
-        .checkbox-container {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
+        .comments-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
         }
-        .checkbox-container input {
-            transform: scale(1.5);
+
+        .comment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* margin-bottom: 5px; */
         }
-        
-      
+
+        .comments-header{
+            position: relative;
+            margin-top: 10px;
+            margin-bottom: -1%;
+            margin-left: -30px;
+            text-align: left;
+        }
+
     </style>
 </head>
 <body>
 <div class="header">
         <h1>Editor Dashboard</h1>
         <?php if (isset($_SESSION['role'])): ?>
-            <?php if ($_SESSION['role'] === 'content_creator'): ?>
-                <a href="creator_dashboard.php">Create Content</a>
-                <a href="logout.php">Logout</a>
-            <?php elseif ($_SESSION['role'] === 'editor'): ?>
-                <!-- <a href="editor_dashboard.php">Edit Content</a> -->
+
+            <?php if ($_SESSION['role'] === 'editor'): ?>
+
                 <a href="logout.php">Logout</a>
             <?php else: ?>
                 <a href="login.php">Log In</a>
@@ -284,27 +298,53 @@
             <button type="submit">Search</button>
         </form>
         <div class="content-grid">
-    <?php if (!empty($contents)): ?>
-        <?php foreach ($contents as $content): ?>
-            <div class="content-card" id="content-<?= $content['id'] ?>">
-                <?php if (!empty($content['image_path']) && file_exists('uploads/' . $content['image_path'])): ?>
-                    <img src="uploads/<?= htmlspecialchars($content['image_path']) ?>" alt="Content Image">
-                <?php else: ?>
-                    <img src="uploads/default_image.jpg" alt="Default Image">
-                <?php endif; ?>
-                <h2><?= htmlspecialchars($content['title']) ?></h2>
-                <p><?= htmlspecialchars($content['body']) ?></p>
-                <p class="creator">By <?= htmlspecialchars($content['creator_name']) ?></p>
 
-                <?php if ($content['creator_id'] == $user_id): ?>
-                    <span class="delete-content" onclick="deleteContent(<?= $content['id'] ?>)">
-                        <i class="fas fa-trash"></i>
-                    </span>
-                <?php endif; ?>
+            <?php if (!empty($contents)): ?>
+                <?php foreach ($contents as $content): ?>
+                    <div class="content-card" id="content-<?= $content['id'] ?>">
+                        <div class="more-options" onclick="toggleOptions(<?= $content['id'] ?>)">...</div>
+                        <div class="options-dropdown">
+                            <a href="edit_content.php?id=<?= $content['id'] ?>">Edit</a>
+                            <a href="editor_dashboard.php?delete_content_id=<?= $content['id'] ?>" onclick="deleteContent(<?= $content['id'] ?>)">Delete</a>
+                        </div>
+                        <?php
+                            // Check if the image exists in the 'uploads' directory and handle various formats (jpg, png)
+                            $image_path = 'uploads/' . $content['image_path'];
+                            if (!empty($content['image_path']) && file_exists($image_path)) {
+                                $image_url = $image_path;
+                            } else {
+                                // Default image if not found
+                                $image_url = 'uploads/default_photo.jpg';
+                            }
+                        ?>
+                        <img src="<?= htmlspecialchars($image_url) ?>" alt="Content Image">
+                        <h2><?= htmlspecialchars($content['title']) ?></h2>
+                        <p><?= htmlspecialchars($content['body']) ?></p>
+                        <div class="creator">Created by: <?= htmlspecialchars($content['creator_name']) ?></div>
 
-                <?php if ($content['is_approved'] == 1): ?>
-                    <div class="approval-checkbox" title="Approved by editor">
-                        <input type="checkbox" checked disabled>
+                        <!-- Display Comments -->
+                        <?php
+                            // Fetch comments for the content
+                            $stmt = $pdo->prepare("SELECT c.comment, c.created_at, u.username FROM comments c INNER JOIN users u ON c.user_id = u.id WHERE c.content_id = ? ORDER BY c.created_at DESC");
+                            $stmt->execute([$content['id']]);
+                            $comments = $stmt->fetchAll();
+                        ?>
+
+                        <div class="comments-section">
+                            <?php if (!empty($comments)): ?>
+                                <ul class="comments-list">
+                                    <?php foreach ($comments as $comment): ?>
+                                        <li class="comment-item">
+                                            <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
+                                            <p><?= htmlspecialchars($comment['comment']) ?></p>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php else: ?>
+                                <p>No comments yet. Be the first to comment!</p>
+                            <?php endif; ?>
+                        </div>
+
                     </div>
                 <?php endif; ?>
 
