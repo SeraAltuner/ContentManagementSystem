@@ -328,9 +328,7 @@ button:hover {
     <?php if ($_SESSION['role'] === 'content_creator'): ?>
         <a href="creator_dashboard.php">Create Content</a>
         <a href="logout.php">Logout</a>
-    <?php elseif ($_SESSION['role'] === 'editor'): ?>
-        <a href="editor_dashboard.php">Edit Content</a>
-        <a href="logout.php">Logout</a>
+    <!--  -->
     <?php else: ?>
         <a href="login.php">Log In</a>
     <?php endif; ?>
