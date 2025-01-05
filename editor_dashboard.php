@@ -24,7 +24,7 @@
 
     // Append search condition if search query exists
     if ($search_query) {
-        $sql .= " WHERE (contents.title LIKE :search_query OR users.username LIKE :search_query)";
+        $sql .= " WHERE (contents.title LIKE :search_query OR contents.body LIKE :search_query)";
         $params['search_query'] = '%' . $search_query . '%';
     }
 
@@ -88,6 +88,7 @@
         }
 
         .header {
+
             background: #fff;
             padding: 10px 30px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -104,6 +105,7 @@
             width: 90%;
             z-index: 1000;
         }
+
 
         .header h1 {
             color: #4e54c8;
@@ -271,14 +273,16 @@
             margin-left: -30px;
             text-align: left;
         }
-            
+
     </style>
 </head>
 <body>
-    <div class="header">
+<div class="header">
         <h1>Editor Dashboard</h1>
         <?php if (isset($_SESSION['role'])): ?>
+
             <?php if ($_SESSION['role'] === 'editor'): ?>
+
                 <a href="logout.php">Logout</a>
             <?php else: ?>
                 <a href="login.php">Log In</a>
@@ -290,10 +294,11 @@
 
     <div class="container">
         <form method="GET">
-            <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>" placeholder="Search content or creator...">
+            <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>" placeholder="Search content...">
             <button type="submit">Search</button>
         </form>
         <div class="content-grid">
+
             <?php if (!empty($contents)): ?>
                 <?php foreach ($contents as $content): ?>
                     <div class="content-card" id="content-<?= $content['id'] ?>">
@@ -339,16 +344,45 @@
                                 <p>No comments yet. Be the first to comment!</p>
                             <?php endif; ?>
                         </div>
+
                     </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="content-card">
-                    <h2>No content available</h2>
-                    <p>Try adjusting your search or come back later.</p>
+                <?php endif; ?>
+
+                <!-- Display Comments -->
+                <?php
+                // Fetch comments for the content
+                $stmt = $pdo->prepare("SELECT c.comment, c.created_at, u.username FROM comments c INNER JOIN users u ON c.user_id = u.id WHERE c.content_id = ? ORDER BY c.created_at DESC");
+                $stmt->execute([$content['id']]);
+                $comments = $stmt->fetchAll();
+                ?>
+
+                <div class="comments-section">
+                    <?php if (!empty($comments)): ?>
+                        <h3>Comments:</h3>
+                        <ul>
+                            <?php foreach ($comments as $comment): ?>
+                                <li>
+                                    <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
+                                    <p><?= htmlspecialchars($comment['comment']) ?></p>
+                                    <small>Posted on <?= date('F j, Y, g:i a', strtotime($comment['created_at'])) ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        <p>No comments yet. Be the first to comment!</p>
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
+
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <div class="content-card">
+            <h2>No content available</h2>
+            <p>Try adjusting your search or come back later.</p>
         </div>
-    </div>
+    <?php endif; ?>
+</div>
+
 
     <script>
         function deleteContent(contentId) {
