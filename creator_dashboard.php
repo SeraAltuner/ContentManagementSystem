@@ -164,7 +164,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
 
             <button type="submit" name="add_content">Add Content</button>
         </form>
+
+        <button onclick="showContentAsJson()">Show Content as JSON</button>
+
     </div>
+    <script>
+    function showContentAsJson() {
+        window.location.href = 'get_creator_content_json.php';
+    }
+    </script>
 </body>
 
 </html>
