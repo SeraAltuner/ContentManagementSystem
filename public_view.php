@@ -353,11 +353,16 @@ button:hover {
     <?php if (!empty($contents)): ?>
         <?php foreach ($contents as $content): ?>
             <div class="content-card" id="content-<?= $content['id'] ?>">
-                <?php if (!empty($content['image_path']) && file_exists('uploads/' . $content['image_path'])): ?>
-                    <img src="uploads/<?= htmlspecialchars($content['image_path']) ?>" alt="Content Image">
-                <?php else: ?>
-                    <img src="uploads/default_image.jpg" alt="Default Image">
-                <?php endif; ?>
+             <?php
+                $image_path = 'uploads/' . $content['image_path'];
+                $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $image_path;
+                
+                if (!empty($content['image_path']) && file_exists($absolute_path)):
+                    echo "<img src='$image_path' alt='Content Image'>";
+                else:
+                    echo "<img src='uploads/default_image.jpg' alt='Default Image'>";
+                endif;
+             ?>
                 <h2><?= htmlspecialchars($content['title']) ?></h2>
                 <p><?= htmlspecialchars($content['body']) ?></p>
                 <p class="creator">By <?= htmlspecialchars($content['creator_name']) ?></p>

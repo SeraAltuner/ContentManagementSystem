@@ -218,15 +218,7 @@
         <button type="submit">Post Comment</button>
     </form>
 
-    <div class="comments-list">
-        <?php foreach ($comments as $comment): ?>
-            <div class="comment">
-                <strong>User <?= htmlspecialchars($comment['user_id']) ?>:</strong>
-                <p><?= htmlspecialchars($comment['comment']) ?></p>
-                <small>Posted on <?= htmlspecialchars($comment['created_at']) ?></small>
-            </div>
-        <?php endforeach; ?>
-    </div>
+    
 </div>
 
 <script>

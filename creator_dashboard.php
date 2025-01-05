@@ -20,17 +20,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
     $creator_id = $_SESSION['user_id'];
     $image_path = null;
 
+    // Validate and upload image
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/cms/uploads/";
-        $image_path = $target_dir . basename($_FILES['image']['name']);
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_size = 5 * 1024 * 1024; // 5MB
+        $file_tmp_name = $_FILES['image']['tmp_name'];
+        $file_name = basename($_FILES['image']['name']);
+        $file_size = $_FILES['image']['size'];
+        $file_type = $_FILES['image']['type'];
 
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
+        // Check for file type
+        if (!in_array($file_type, $allowed_types)) {
+            die("Error: Invalid file type. Only JPEG, PNG, and GIF files are allowed.");
+        }
+
+        // Check for file size
+        if ($file_size > $max_size) {
+            die("Error: File size exceeds the 5MB limit.");
+        }
+
+        // Target directory
+        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/ContentManagementSystem/uploads/";
+        $image_path = $target_dir . $file_name;
+
+        // Move the uploaded file
+        if (move_uploaded_file($file_tmp_name, $image_path)) {
             // File uploaded successfully
         } else {
-            // File upload failed, handle error
+            die("Error: Failed to move the uploaded file.");
         }
     } else {
-        // No image or error during upload
+        $image_error = $_FILES['image']['error'] ?? null;
+        if ($image_error !== UPLOAD_ERR_OK) {
+            echo "Image upload error: " . $image_error;
+        }
     }
 
     // Insert content into database
@@ -39,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
 
     // Redirect to public_view.php after successful content creation
     header("Location: public_view.php");
-    exit; // Ensure no further code is executed
+    exit;
 }
 ?>
 
