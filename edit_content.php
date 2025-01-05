@@ -27,10 +27,11 @@
     }
 
     // Handle form submission to update the content
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_content'])) {
         $title = $_POST['title'];
         $body = $_POST['body'];
         $image = $_FILES['image'];
+        $is_approved = isset($_POST['is_approved']) ? 1 : 0; // Capture approval status
 
         // Handle image upload if a new one is provided
         $image_path = $content['image_path']; // Default to current image if not replaced
@@ -39,19 +40,34 @@
             move_uploaded_file($image['tmp_name'], 'uploads/' . $image_path);
         }
 
-        // Update content details in the database
-        $stmt = $pdo->prepare("UPDATE contents SET title = :title, body = :body, image_path = :image_path WHERE id = :content_id");
+        // Update content details and approval status in the database
+        $stmt = $pdo->prepare("UPDATE contents SET title = :title, body = :body, image_path = :image_path, is_approved = :is_approved WHERE id = :content_id");
         $stmt->execute([
             'title' => $title,
             'body' => $body,
             'image_path' => $image_path,
+            'is_approved' => $is_approved,
             'content_id' => $content_id
         ]);
-
-        // Redirect back to the editor dashboard
-        header("Location: editor_dashboard.php");
-        exit;
     }
+
+    // Handle comment submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
+        $comment = $_POST['comment'];
+
+        // Insert the comment into the database
+        $stmt = $pdo->prepare("INSERT INTO comments (content_id, user_id, comment) VALUES (:content_id, :user_id, :comment)");
+        $stmt->execute([
+            'content_id' => $content_id,
+            'user_id' => $_SESSION['user_id'],
+            'comment' => $comment
+        ]);
+    }
+
+    // Fetch existing comments for the content
+    $stmt = $pdo->prepare("SELECT * FROM comments WHERE content_id = :content_id ORDER BY created_at DESC");
+    $stmt->execute(['content_id' => $content_id]);
+    $comments = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -74,44 +90,54 @@
             flex-direction: column;
         }
         .header, .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .header {
-            background: #fff;
-            padding: 10px 30px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            border-bottom: 2px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: -8%;
-            border-radius: 15px;
-        }
-        .header h1 {
-            color: #4e54c8;
-            margin: 0;
-        }
-        .header a {
-            padding: 10px 20px;
-            border-radius: 8px;
-            background: linear-gradient(to right, #4e54c8, #8f94fb);
-            color: #fff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .header a:hover {
-            transform: translateY(-3px);
-            box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
-        }
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background: #fff;
+    padding: 10px 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+    border-radius: 15px;
+    position: fixed;
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    z-index: 1000;
+}
+
+.header h1 {
+    color: #4e54c8;
+    margin: 0;
+}
+
+.header a {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
+}
         .container {
             background: #fff;
             border-radius: 15px;
             padding: 20px 30px;
-            margin-top: 30px;
+            margin-top: 90px;
             box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
         }
         h1 {
@@ -162,6 +188,7 @@
 </div>
 
 <div class="container">
+    <!-- Content editing form -->
     <form method="POST" enctype="multipart/form-data">
         <label for="title">Title</label>
         <input type="text" id="title" name="title" value="<?= htmlspecialchars($content['title']) ?>" required>
@@ -177,9 +204,62 @@
         <?php endif; ?>
         <input type="file" id="image" name="image">
 
-        <button type="submit">Save Changes</button>
+        <!-- Approval Checkbox -->
+        <label for="approve-checkbox">Approve Content</label>
+        <input type="checkbox" id="approve-checkbox" name="is_approved" <?= $content['is_approved'] ? 'checked' : '' ?>>
+
+        <button type="submit" name="save_content">Save Changes</button>
     </form>
+
+    <!-- Comment Section -->
+    <h2>Comments</h2>
+    <form method="POST">
+        <textarea name="comment" rows="3" placeholder="Add a comment..." required></textarea>
+        <button type="submit">Post Comment</button>
+    </form>
+
+    <div class="comments-list">
+        <?php foreach ($comments as $comment): ?>
+            <div class="comment">
+                <strong>User <?= htmlspecialchars($comment['user_id']) ?>:</strong>
+                <p><?= htmlspecialchars($comment['comment']) ?></p>
+                <small>Posted on <?= htmlspecialchars($comment['created_at']) ?></small>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </div>
+
+<script>
+    // Function to handle the content approval status
+    function approveContent(contentId) {
+        const checkbox = document.querySelector(`#approve-checkbox`);
+        const isChecked = checkbox.checked;
+
+        // Use AJAX to update the is_approved attribute
+        const formData = new FormData();
+        formData.append('approve_content_id', contentId);
+        formData.append('is_approved', isChecked ? 1 : 0); // Send the current state (1 for approved, 0 for not approved)
+
+        fetch('editor_dashboard.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Content approval status updated');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Listen for changes to the approval checkbox
+    document.querySelector('#approve-checkbox').addEventListener('change', function() {
+        approveContent(<?= $content_id ?>); // Call the function with the current content ID
+    });
+</script>
 
 </body>
 </html>

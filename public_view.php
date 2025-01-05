@@ -90,7 +90,7 @@ if (isset($_GET['delete_content_id']) && $user_id) {
     <title>Public View</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-   body {
+ body {
     font-family: Arial, sans-serif;
     background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
     margin: 0;
@@ -119,8 +119,9 @@ if (isset($_GET['delete_content_id']) && $user_id) {
     margin-top: 0;
     border-radius: 15px;
     position: fixed;
-    top: 0;
-    left: 5%; /* Adjust left to ensure it aligns properly */
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%);
     width: 90%;
     z-index: 1000;
 }
@@ -265,8 +266,7 @@ button:hover {
 }
 
 .approval-checkbox {
-    position: absolute;
-    bottom: 10px;
+    position: relative;
     right: 10px;
     display: inline-block;
     background-color: green;
@@ -298,6 +298,27 @@ button:hover {
 }
 
 
+.comments-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.comment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* margin-bottom: 5px; */
+}
+
+.comments-header{
+    position: relative;
+    margin-top: 10px;
+    margin-bottom: -1%;
+    margin-left: -30px;
+    text-align: left;
+}
+
     </style>
 </head>
 <body>
@@ -307,9 +328,7 @@ button:hover {
     <?php if ($_SESSION['role'] === 'content_creator'): ?>
         <a href="creator_dashboard.php">Create Content</a>
         <a href="logout.php">Logout</a>
-    <?php elseif ($_SESSION['role'] === 'editor'): ?>
-        <a href="editor_dashboard.php">Edit Content</a>
-        <a href="logout.php">Logout</a>
+    <!--  -->
     <?php else: ?>
         <a href="login.php">Log In</a>
     <?php endif; ?>
@@ -349,11 +368,7 @@ button:hover {
                     </span>
                 <?php endif; ?>
 
-                <?php if ($content['is_approved'] == 1): ?>
-                    <div class="approval-checkbox" title="Approved by editor">
-                        <input type="checkbox" checked disabled>
-                    </div>
-                <?php endif; ?>
+                <hr>
 
                 <!-- Display Comments -->
                 <?php
@@ -365,13 +380,12 @@ button:hover {
 
                 <div class="comments-section">
                     <?php if (!empty($comments)): ?>
-                        <h3>Comments:</h3>
-                        <ul>
+                        <!-- <h3 class="comments-header">Comments:</h3> -->
+                        <ul class="comments-list">
                             <?php foreach ($comments as $comment): ?>
-                                <li>
+                                <li class="comment-item">
                                     <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
                                     <p><?= htmlspecialchars($comment['comment']) ?></p>
-                                    <small>Posted on <?= date('F j, Y, g:i a', strtotime($comment['created_at'])) ?></small>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
@@ -379,7 +393,12 @@ button:hover {
                         <p>No comments yet. Be the first to comment!</p>
                     <?php endif; ?>
                 </div>
-
+                <?php if ($content['is_approved'] == 1): ?>
+                    <div class="approval-checkbox" title="Approved by editor">
+                        <input type="checkbox" checked disabled>
+                    </div>
+                <?php endif; ?>
+                
             </div>
         <?php endforeach; ?>
     <?php else: ?>

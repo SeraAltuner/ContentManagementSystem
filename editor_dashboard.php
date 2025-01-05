@@ -82,44 +82,54 @@
             flex-direction: column;
         }
         .header, .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .header {
-            background: #fff;
-            padding: 10px 30px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            border-bottom: 2px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: -8%;
-            border-radius: 15px;
-        }
-        .header h1 {
-            color: #4e54c8;
-            margin: 0;
-        }
-        .header a {
-            padding: 10px 20px;
-            border-radius: 8px;
-            background: linear-gradient(to right, #4e54c8, #8f94fb);
-            color: #fff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .header a:hover {
-            transform: translateY(-3px);
-            box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
-        }
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background: #fff;
+    padding: 10px 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+    border-radius: 15px;
+    position: fixed;
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    z-index: 1000;
+}
+
+.header h1 {
+    color: #4e54c8;
+    margin: 0;
+}
+
+.header a {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
+}
         .container {
             background: #fff;
             border-radius: 15px;
             padding: 20px 30px;
-            margin-top: 30px;
+            margin-top: 90px;
             box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
         }
         h1 {
@@ -241,15 +251,27 @@
         .content-card.show-options .options-dropdown {
             display: block;
         }
-        .checkbox-container {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
+        .comments-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
         }
-        .checkbox-container input {
-            transform: scale(1.5);
+
+        .comment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* margin-bottom: 5px; */
         }
-      
+
+        .comments-header{
+            position: relative;
+            margin-top: 10px;
+            margin-bottom: -1%;
+            margin-left: -30px;
+            text-align: left;
+        }
+            
     </style>
 </head>
 <body>
@@ -291,6 +313,30 @@
                         <h2><?= htmlspecialchars($content['title']) ?></h2>
                         <p><?= htmlspecialchars($content['body']) ?></p>
                         <div class="creator">Created by: <?= htmlspecialchars($content['creator_name']) ?></div>
+                         <!-- Display Comments -->
+                <?php
+                // Fetch comments for the content
+                $stmt = $pdo->prepare("SELECT c.comment, c.created_at, u.username FROM comments c INNER JOIN users u ON c.user_id = u.id WHERE c.content_id = ? ORDER BY c.created_at DESC");
+                $stmt->execute([$content['id']]);
+                $comments = $stmt->fetchAll();
+                ?>
+
+                <div class="comments-section">
+                    <?php if (!empty($comments)): ?>
+                        <!-- <h3 class="comments-header">Comments:</h3> -->
+                        <ul class="comments-list">
+                            <?php foreach ($comments as $comment): ?>
+                                <li class="comment-item">
+                                    <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
+                                    <p><?= htmlspecialchars($comment['comment']) ?></p>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        <p>No comments yet. Be the first to comment!</p>
+                    <?php endif; ?>
+                </div>
+               
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
