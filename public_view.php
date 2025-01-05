@@ -84,276 +84,288 @@ if (isset($_GET['delete_content_id']) && $user_id) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Public View</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
- body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    flex-direction: column;
-}
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        flex-direction: column;
+    }
 
-.header, .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
+    .header,
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-.header {
-    background: #fff;
-    padding: 10px 30px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    border-bottom: 2px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0;
-    border-radius: 15px;
-    position: fixed;
-    top: 2%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    z-index: 1000;
-}
+    .header {
+        background: #fff;
+        padding: 10px 30px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        border-bottom: 2px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0;
+        border-radius: 15px;
+        position: fixed;
+        top: 2%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        z-index: 1000;
+    }
 
-.header h1 {
-    color: #4e54c8;
-    margin: 0;
-}
+    .header h1 {
+        color: #4e54c8;
+        margin: 0;
+    }
 
-.header a {
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: linear-gradient(to right, #4e54c8, #8f94fb);
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+    .header a {
+        padding: 10px 20px;
+        border-radius: 8px;
+        background: linear-gradient(to right, #4e54c8, #8f94fb);
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-.header a:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
-}
+    .header a:hover {
+        transform: translateY(-3px);
+        box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
+    }
 
-.container {
-    background: #fff;
-    border-radius: 15px;
-    padding: 20px 30px;
-    margin-top: 90px; /* Adjust this to match the height of your header */
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-}
+    .container {
+        background: #fff;
+        border-radius: 15px;
+        padding: 20px 30px;
+        margin-top: 90px;
+        /* Adjust this to match the height of your header */
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+    }
 
-h1 {
-    color: #4e54c8;
-    text-align: center;
-    margin-bottom: 20px;
-}
+    h1 {
+        color: #4e54c8;
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-form {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    gap: 10px;
-}
+    form {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
 
-input[type="text"] {
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    flex: 1;
-    transition: border-color 0.3s ease-in-out;
-}
+    input[type="text"] {
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        flex: 1;
+        transition: border-color 0.3s ease-in-out;
+    }
 
-input[type="text"]:focus {
-    border-color: #4e54c8;
-    outline: none;
-}
+    input[type="text"]:focus {
+        border-color: #4e54c8;
+        outline: none;
+    }
 
-select {
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #fff;
-    flex-shrink: 0;
-}
+    select {
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        background: #fff;
+        flex-shrink: 0;
+    }
 
-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(to right, #4e54c8, #8f94fb);
-    color: #fff;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(to right, #4e54c8, #8f94fb);
+        color: #fff;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
-}
+    button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
+    }
 
-.content-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
+    .content-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
 
-.content-card {
-    background: #f9f9f9;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-}
+    .content-card {
+        background: #f9f9f9;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
 
-.content-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
-}
+    .content-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+    }
 
-.content-card img {
-    max-width: 100%;
-    height: auto;
-    max-height: 100px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    object-fit: cover;
-}
+    .content-card img {
+        max-width: 100%;
+        height: auto;
+        max-height: 100px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        object-fit: cover;
+    }
 
-.content-card h2 {
-    font-size: 18px;
-    color: #4e54c8;
-    margin-bottom: 10px;
-}
+    .content-card h2 {
+        font-size: 18px;
+        color: #4e54c8;
+        margin-bottom: 10px;
+    }
 
-.content-card p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 10px;
-}
+    .content-card p {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 10px;
+    }
 
-.content-card .creator {
-    font-size: 12px;
-    color: #888;
-}
+    .content-card .creator {
+        font-size: 12px;
+        color: #888;
+    }
 
-.delete-content {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #ff4c4c;
-    cursor: pointer;
-    font-size: 20px;
-    display: inline-block;
-}
+    .delete-content {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #ff4c4c;
+        cursor: pointer;
+        font-size: 20px;
+        display: inline-block;
+    }
 
-.approval-checkbox {
-    position: relative;
-    right: 10px;
-    display: inline-block;
-    background-color: green;
-}
+    .approval-checkbox {
+        position: relative;
+        right: 10px;
+        display: inline-block;
+        background-color: green;
+    }
 
-.approval-checkbox input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    background-color: green;
-    border: 2px solid green;
-    cursor: not-allowed;
-}
+    .approval-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        background-color: green;
+        border: 2px solid green;
+        cursor: not-allowed;
+    }
 
-.approval-checkbox input[type="checkbox"]:checked {
-    background-color: green;
-    border: 2px solid green;
-}
+    .approval-checkbox input[type="checkbox"]:checked {
+        background-color: green;
+        border: 2px solid green;
+    }
 
-.approval-checkbox:hover::after {
-    content: "Approved by editor";
-    position: absolute;
-    bottom: 30px;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-}
+    .approval-checkbox:hover::after {
+        content: "Approved by editor";
+        position: absolute;
+        bottom: 30px;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px;
+        border-radius: 5px;
+        font-size: 12px;
+    }
 
 
-.comments-list {
-    list-style-type: none;
-    padding-left: 0;
-    margin: 0;
-}
+    .comments-list {
+        list-style-type: none;
+        padding-left: 0;
+        margin: 0;
+    }
 
-.comment-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    /* margin-bottom: 5px; */
-}
+    .comment-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        /* margin-bottom: 5px; */
+    }
 
-.comments-header{
-    position: relative;
-    margin-top: 10px;
-    margin-bottom: -1%;
-    margin-left: -30px;
-    text-align: left;
-}
-
+    .comments-header {
+        position: relative;
+        margin-top: 10px;
+        margin-bottom: -1%;
+        margin-left: -30px;
+        text-align: left;
+    }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Public Content</h1>
         <?php if (isset($_SESSION['role'])): ?>
-    <?php if ($_SESSION['role'] === 'content_creator'): ?>
+        <?php if ($_SESSION['role'] === 'content_creator'): ?>
         <a href="creator_dashboard.php">Create Content</a>
         <a href="logout.php">Logout</a>
-    <!--  -->
-    <?php else: ?>
+        <!--  -->
+        <?php else: ?>
         <a href="login.php">Log In</a>
-    <?php endif; ?>
-<?php else: ?>
-    <a href="login.php">Log In</a>
-<?php endif; ?>
+        <?php endif; ?>
+        <?php else: ?>
+        <a href="login.php">Log In</a>
+        <?php endif; ?>
 
+        <button onclick="showContentAsJson()">Show Content as JSON</button>
+
+        <script>
+        function showContentAsJson() {
+            window.location.href = 'get_content_json.php';
+        }
+        </script>
     </div>
 
     <div class="container">
-    <form method="GET">
-    <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>" placeholder="Search content...">
-    <select name="approval_filter" id="approval-filter" onchange="applyFilter()">
-        <option value="all" <?= $approval_filter === 'all' ? 'selected' : '' ?>>All</option>
-        <option value="approved" <?= $approval_filter === 'approved' ? 'selected' : '' ?>>Approved</option>
-        <option value="not_approved" <?= $approval_filter === 'not_approved' ? 'selected' : '' ?>>Not Approved</option>
-    </select>
-    <button type="submit">Search</button>
-</form>
+        <form method="GET">
+            <input type="text" name="search" value="<?= htmlspecialchars($search_query) ?>"
+                placeholder="Search content...">
+            <select name="approval_filter" id="approval-filter" onchange="applyFilter()">
+                <option value="all" <?= $approval_filter === 'all' ? 'selected' : '' ?>>All</option>
+                <option value="approved" <?= $approval_filter === 'approved' ? 'selected' : '' ?>>Approved</option>
+                <option value="not_approved" <?= $approval_filter === 'not_approved' ? 'selected' : '' ?>>Not Approved
+                </option>
+            </select>
+            <button type="submit">Search</button>
+        </form>
 
-<div class="content-grid">
-    <?php if (!empty($contents)): ?>
-        <?php foreach ($contents as $content): ?>
+        <div class="content-grid">
+            <?php if (!empty($contents)): ?>
+            <?php foreach ($contents as $content): ?>
             <div class="content-card" id="content-<?= $content['id'] ?>">
-             <?php
+                <?php
                 $image_path = 'uploads/' . $content['image_path'];
                 $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $image_path;
                 
@@ -368,9 +380,9 @@ button:hover {
                 <p class="creator">By <?= htmlspecialchars($content['creator_name']) ?></p>
 
                 <?php if ($content['creator_id'] == $user_id): ?>
-                    <span class="delete-content" onclick="deleteContent(<?= $content['id'] ?>)">
-                        <i class="fas fa-trash"></i>
-                    </span>
+                <span class="delete-content" onclick="deleteContent(<?= $content['id'] ?>)">
+                    <i class="fas fa-trash"></i>
+                </span>
                 <?php endif; ?>
 
                 <hr>
@@ -385,49 +397,50 @@ button:hover {
 
                 <div class="comments-section">
                     <?php if (!empty($comments)): ?>
-                        <!-- <h3 class="comments-header">Comments:</h3> -->
-                        <ul class="comments-list">
-                            <?php foreach ($comments as $comment): ?>
-                                <li class="comment-item">
-                                    <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
-                                    <p><?= htmlspecialchars($comment['comment']) ?></p>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
+                    <!-- <h3 class="comments-header">Comments:</h3> -->
+                    <ul class="comments-list">
+                        <?php foreach ($comments as $comment): ?>
+                        <li class="comment-item">
+                            <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
+                            <p><?= htmlspecialchars($comment['comment']) ?></p>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
                     <?php else: ?>
-                        <p>No comments yet. Be the first to comment!</p>
+                    <p>No comments yet. Be the first to comment!</p>
                     <?php endif; ?>
                 </div>
                 <?php if ($content['is_approved'] == 1): ?>
-                    <div class="approval-checkbox" title="Approved by editor">
-                        <input type="checkbox" checked disabled>
-                    </div>
+                <div class="approval-checkbox" title="Approved by editor">
+                    <input type="checkbox" checked disabled>
+                </div>
                 <?php endif; ?>
-                
+
             </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <div class="content-card">
-            <h2>No content available</h2>
-            <p>Try adjusting your search or come back later.</p>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <div class="content-card">
+                <h2>No content available</h2>
+                <p>Try adjusting your search or come back later.</p>
+            </div>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
-</div>
 
 
-    <script>
-          function applyFilter() {
-        const searchInput = document.querySelector('input[name="search"]').value;
-        const approvalFilter = document.querySelector('#approval-filter').value;
-        const url = new URL(window.location.href);
-        url.searchParams.set('search', searchInput);
-        url.searchParams.set('approval_filter', approvalFilter);
-        window.location.href = url.toString();
-    }
+        <script>
+        function applyFilter() {
+            const searchInput = document.querySelector('input[name="search"]').value;
+            const approvalFilter = document.querySelector('#approval-filter').value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', searchInput);
+            url.searchParams.set('approval_filter', approvalFilter);
+            window.location.href = url.toString();
+        }
 
         function deleteContent(contentId) {
             window.location.href = 'public_view.php?delete_content_id=' + contentId;
         }
-    </script>
+        </script>
 </body>
+
 </html>
