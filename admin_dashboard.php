@@ -16,6 +16,30 @@ if ($_SESSION['role'] !== 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Boşluk buradan sağlanıyor */
+            margin: 10px 0; /* Ek boşluk */
+        }
+
+        button {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 5px 0; /* Butonlar arası boşluk */
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
+        }
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
