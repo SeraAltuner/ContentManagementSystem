@@ -331,7 +331,6 @@ if (isset($_GET['delete_content_id']) && $user_id) {
         <?php if ($_SESSION['role'] === 'content_creator'): ?>
         <a href="creator_dashboard.php">Create Content</a>
         <a href="logout.php">Logout</a>
-        <!--  -->
         <?php else: ?>
         <a href="login.php">Log In</a>
         <?php endif; ?>
@@ -365,16 +364,11 @@ if (isset($_GET['delete_content_id']) && $user_id) {
             <?php if (!empty($contents)): ?>
             <?php foreach ($contents as $content): ?>
             <div class="content-card" id="content-<?= $content['id'] ?>">
-                <?php
-                $image_path = 'uploads/' . $content['image_path'];
-                $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $image_path;
-                
-                if (!empty($content['image_path']) && file_exists($absolute_path)):
-                    echo "<img src='$image_path' alt='Content Image'>";
-                else:
-                    echo "<img src='uploads/default_image.jpg' alt='Default Image'>";
-                endif;
-             ?>
+            <?php 
+    $image_url = !empty($content['image_path']) ? "uploads/" . rawurlencode($content['image_path']) : "uploads/default_image.jpg"; 
+?>
+<img src="<?= $image_url ?>" alt="<?= !empty($content['image_path']) ? 'Content Image' : 'Default Image' ?>">
+
                 <h2><?= htmlspecialchars($content['title']) ?></h2>
                 <p><?= htmlspecialchars($content['body']) ?></p>
                 <p class="creator">By <?= htmlspecialchars($content['creator_name']) ?></p>

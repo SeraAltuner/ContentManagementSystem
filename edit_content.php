@@ -85,116 +85,120 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
-            flex-direction: column;
         }
-        .header, .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
 
-.header {
-    background: #fff;
-    padding: 10px 30px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    border-bottom: 2px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0;
-    border-radius: 15px;
-    position: fixed;
-    top: 2%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    z-index: 1000;
-}
-
-.header h1 {
-    color: #4e54c8;
-    margin: 0;
-}
-
-.header a {
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: linear-gradient(to right, #4e54c8, #8f94fb);
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.header a:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
-}
         .container {
             background: #fff;
-            border-radius: 15px;
-            padding: 20px 30px;
-            margin-top: 90px;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            color: #4e54c8;
-            text-align: center;
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
+
+        .header h1 {
+            color: #4e54c8;
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .header a {
+            padding: 8px 16px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         form {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
-        input[type="text"], textarea {
+
+        label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], textarea, input[type="file"] {
+            width: 100%;
             padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             font-size: 14px;
         }
+
         textarea {
             resize: vertical;
         }
+
+        .image-preview img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
         button {
-            padding: 10px 20px;
+            padding: 10px 15px;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             background: linear-gradient(to right, #4e54c8, #8f94fb);
             color: #fff;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            align-self: flex-end;
         }
+
         button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0px 6px 15px rgba(78, 84, 200, 0.4);
+            background: #3e44b8;
         }
-        .image-preview {
-            max-width: 200px;
+
+        .comments {
+            margin-top: 20px;
+        }
+
+        .comment {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
             margin-bottom: 10px;
         }
+
+        .comment textarea {
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>Edit Content</h1>
-    <a href="editor_dashboard.php">Back to Dashboard</a>
-</div>
-
 <div class="container">
+    <div class="header">
+        <h1>Edit Content</h1>
+        <a href="editor_dashboard.php">Dashboard</a>
+    </div>
+
     <!-- Content editing form -->
     <form method="POST" enctype="multipart/form-data">
         <label for="title">Title</label>
         <input type="text" id="title" name="title" value="<?= htmlspecialchars($content['title']) ?>" required>
 
         <label for="body">Body</label>
-        <textarea id="body" name="body" rows="5" required><?= htmlspecialchars($content['body']) ?></textarea>
+        <textarea id="body" name="body" rows="4" required><?= htmlspecialchars($content['body']) ?></textarea>
 
         <label for="image">Image</label>
         <?php if (!empty($content['image_path'])): ?>
@@ -204,54 +208,31 @@
         <?php endif; ?>
         <input type="file" id="image" name="image">
 
-        <!-- Approval Checkbox -->
-        <label for="approve-checkbox">Approve Content</label>
-        <input type="checkbox" id="approve-checkbox" name="is_approved" <?= $content['is_approved'] ? 'checked' : '' ?>>
-
-        <button type="submit" name="save_content">Save Changes</button>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label for="approve-checkbox" style="display: flex; align-items: center;">
+                <input type="checkbox" id="approve-checkbox" name="is_approved" style="margin-right: 5px;" <?= $content['is_approved'] ? 'checked' : '' ?>> Approve Content
+            </label>
+            <button type="submit" name="save_content">Save Changes</button>
+        </div>
     </form>
 
     <!-- Comment Section -->
-    <h2>Comments</h2>
-    <form method="POST">
-        <textarea name="comment" rows="3" placeholder="Add a comment..." required></textarea>
-        <button type="submit">Post Comment</button>
-    </form>
+    <div class="comments">
+        <h2>Comments</h2>
+        <form method="POST">
+            <textarea name="comment" rows="3" placeholder="Add a comment..." required></textarea>
+            <button type="submit">Post Comment</button>
+        </form>
 
-    
+        <?php foreach ($comments as $comment): ?>
+            <div class="comment">
+                <strong>User <?= htmlspecialchars($comment['user_id']) ?>:</strong>
+                <p><?= htmlspecialchars($comment['comment']) ?></p>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </div>
-
-<script>
-    // Function to handle the content approval status
-    function approveContent(contentId) {
-        const checkbox = document.querySelector(`#approve-checkbox`);
-        const isChecked = checkbox.checked;
-
-        // Use AJAX to update the is_approved attribute
-        const formData = new FormData();
-        formData.append('approve_content_id', contentId);
-        formData.append('is_approved', isChecked ? 1 : 0); // Send the current state (1 for approved, 0 for not approved)
-
-        fetch('editor_dashboard.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Content approval status updated');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-
-    // Listen for changes to the approval checkbox
-    document.querySelector('#approve-checkbox').addEventListener('change', function() {
-        approveContent(<?= $content_id ?>); // Call the function with the current content ID
-    });
-</script>
 
 </body>
 </html>
+
