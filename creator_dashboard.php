@@ -68,80 +68,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Creator Dashboard</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
-        }
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #333;
+    }
 
-        .dashboard-container {
-            background: #fff;
-            border-radius: 12px;
-            padding: 40px;
-            width: 400px;
-            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
+    .dashboard-container {
+        background: #fff;
+        border-radius: 12px;
+        padding: 40px;
+        width: 400px;
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #4e54c8;
-        }
+    h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #4e54c8;
+    }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
-        label {
-            font-size: 14px;
-            text-align: left;
-        }
+    label {
+        font-size: 14px;
+        text-align: left;
+    }
 
-        input[type="text"], textarea, input[type="file"] {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            width: 100%;
-            box-sizing: border-box;
-        }
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-        textarea {
-            resize: vertical;
-            height: 150px;
-        }
+    textarea {
+        resize: vertical;
+        height: 150px;
+    }
 
-        button {
-            background: linear-gradient(to right, #4e54c8, #8f94fb);
-            color: #fff;
-            border: none;
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+    button {
+        background: linear-gradient(to right, #4e54c8, #8f94fb);
+        color: #fff;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
 
-        button:hover {
-            transform: scale(1.05);
-        }
-
+    button:hover {
+        transform: scale(1.05);
+    }
     </style>
 </head>
+
 <body>
 
     <div class="dashboard-container">
@@ -162,6 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
             <button type="submit" name="add_content">Add Content</button>
         </form>
     </div>
-
 </body>
+
 </html>
