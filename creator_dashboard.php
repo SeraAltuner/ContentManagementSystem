@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
     $title = $_POST['title'];
     $body = $_POST['body'];
     $creator_id = $_SESSION['user_id'];
-    $image_path = null;
+    $image_name = null;  // Store only the image name, not the path
 
     // Validate and upload image
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -41,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
 
         // Target directory
         $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/ContentManagementSystem/uploads/";
-        $image_path = $target_dir . $file_name;
+        $image_name = $file_name;  // Save only the file name, not the full path
 
         // Move the uploaded file
-        if (move_uploaded_file($file_tmp_name, $image_path)) {
+        if (move_uploaded_file($file_tmp_name, $target_dir . $image_name)) {
             // File uploaded successfully
         } else {
             die("Error: Failed to move the uploaded file.");
@@ -56,9 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_content'])) {
         }
     }
 
-    // Insert content into database
+    // Insert content into database (save only the image name)
     $stmt = $pdo->prepare("INSERT INTO contents (title, body, image_path, creator_id) VALUES (:title, :body, :image_path, :creator_id)");
-    $stmt->execute(['title' => $title, 'body' => $body, 'image_path' => $image_path, 'creator_id' => $creator_id]);
+    $stmt->execute(['title' => $title, 'body' => $body, 'image_path' => $image_name, 'creator_id' => $creator_id]);
 
     // Redirect to public_view.php after successful content creation
     header("Location: public_view.php");
