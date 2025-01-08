@@ -1,6 +1,9 @@
 <?php
 require 'config.php';
 session_start();
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+header("Pragma: no-cache");
 
 // If the user is logged out, set the flag
 if (isset($_SESSION['logged_out']) && $_SESSION['logged_out'] === true) {
@@ -365,9 +368,9 @@ if (isset($_GET['delete_content_id']) && $user_id) {
             <?php foreach ($contents as $content): ?>
             <div class="content-card" id="content-<?= $content['id'] ?>">
             <?php 
-    $image_url = !empty($content['image_path']) ? "uploads/" . rawurlencode($content['image_path']) : "uploads/default_image.jpg"; 
-?>
-<img src="<?= $image_url ?>" alt="<?= !empty($content['image_path']) ? 'Content Image' : 'Default Image' ?>">
+                    $image_url = !empty($content['image_path']) ? "uploads/" . rawurlencode($content['image_path']) : "uploads/default_image.jpg"; 
+                ?>
+                <img src="<?= $image_url ?>" alt="<?= !empty($content['image_path']) ? 'Content Image' : 'Default Image' ?>">
 
                 <h2><?= htmlspecialchars($content['title']) ?></h2>
                 <p><?= htmlspecialchars($content['body']) ?></p>

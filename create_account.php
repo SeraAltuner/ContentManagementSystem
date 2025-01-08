@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'role' => $role
     ]);
     $message = "User created successfully.";
+    header("Location: login.php");
 }
 ?>
 <!DOCTYPE html>

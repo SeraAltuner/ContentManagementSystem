@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'view_all_contents' => $view_all_contents
     ]);
     $message = "User permissions updated successfully.";
-    header("Location: public_view.php");
+    header("Location: login.php");
 }
 ?>
 <!DOCTYPE html>
